@@ -1,48 +1,189 @@
-## Standalone JBoss Deployment
+# 🚀 WildFly Deployment with Ansible (Ubuntu EC2)
 
-- Requires Ansible 1.2 or newer
-- Expects CentOS/RHEL 6 or 7 hosts
+This project automates the installation and configuration of **WildFly Application Server** on an Ubuntu EC2 instance using **Ansible**.
 
-These playbooks deploy a very basic implementation of JBoss Application Server,
-version 7. To use them, first edit the `hosts` inventory file to contain the
-hostnames of the machines on which you want JBoss deployed, and edit the 
-group_vars/all file to set any JBoss configuration parameters you need.
+It demonstrates infrastructure automation, service management, and structured Ansible role-based deployment.
 
-Then run the playbook, like this:
+---
 
-	ansible-playbook -i hosts site.yml
+## 📁 Project Structure
 
-When the playbook run completes, you should be able to see the JBoss
-Application Server running on the ports you chose, on the target machines.
+```
+jboss-lab/
+│
+├── inventory
+├── site.yml
+├── deploy-application.yml
+├── demo-aws-launch.yml
+├── group_vars/
+│   └── all
+└── roles/
+    └── jboss-standalone/
+        ├── tasks/
+        ├── templates/
+        ├── handlers/
+        └── defaults/
+```
 
-This is a very simple playbook and could serve as a starting point for more
-complex JBoss-based projects. 
+---
 
-## Application deployment
+## 🛠 Requirements
 
-The playbook deploy-application.yml may be used to deploy the HelloWorld and Ticket Monster demo applications to JBoss hosts that have been deployed using site.yml, as above.
+- Ansible 2.x+
+- Ubuntu EC2 instance
+- SSH access to target EC2
+- Python installed on target machine
 
-Run the playbook using:
+---
 
-	ansible-playbook -i hosts deploy-application.yml
-	
-The HelloWorld application will be available at `http://<jboss server>:<http_port>/helloworld`
+## ⚙️ Configure Inventory
 
-The Ticket Monster application will be available at `http://<jboss server>:<http_port>/ticket-monster`
+Edit the `inventory` file:
 
-## Provisioning for Amazon Web Services
+```
+[web]
+<your-ec2-public-ip> ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/your-key.pem
+```
 
-A simple playbook is provided, as an example, to provision hosts in preparation for running this JBoss deployment example.
+Example:
 
-	ansible-playbook -i hosts demo-aws-launch.yml
+```
+[web]
+54.123.45.67 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/mykey.pem
+```
 
-### Ideas for Improvement
+---
 
-Here are some ideas for ways that these playbooks could be extended:
+## 🚀 Deploy WildFly
 
-- Write a playbook or an Ansible module to configure JBoss users.
-- Extend this configuration to multiple application servers fronted by a load
-balancer or other web server frontend.
+From inside the project directory:
 
-We would love to see contributions and improvements, so please fork this
-repository on GitHub and send us your changes via pull requests.
+```
+ansible-playbook -i inventory site.yml
+```
+
+This will:
+
+- Install Java
+- Create wildfly user & group
+- Download WildFly
+- Extract to `/opt`
+- Create systemd service
+- Enable and start WildFly
+
+---
+
+## 🌍 Access the Application
+
+Once deployed and running:
+
+```
+http://<your-ec2-public-ip>:8080
+```
+
+If it doesn't open:
+
+Make sure port **8080** is allowed in:
+
+- EC2 Security Group (Inbound Rules)
+
+Add rule:
+- Type: Custom TCP
+- Port: 8080
+- Source: 0.0.0.0/0
+
+---
+
+## 🔁 Manage WildFly Service
+
+Check status:
+
+```
+sudo systemctl status wildfly
+```
+
+Start:
+
+```
+sudo systemctl start wildfly
+```
+
+Stop:
+
+```
+sudo systemctl stop wildfly
+```
+
+Restart:
+
+```
+sudo systemctl restart wildfly
+```
+
+---
+
+## 📦 Deploy Application (Optional)
+
+To deploy demo applications:
+
+```
+ansible-playbook -i inventory deploy-application.yml
+```
+
+---
+
+## ☁️ AWS Provisioning (Optional)
+
+To provision infrastructure via Ansible:
+
+```
+ansible-playbook -i inventory demo-aws-launch.yml
+```
+
+---
+
+## 🎯 What This Project Demonstrates
+
+- Infrastructure as Code (IaC)
+- Ansible role-based architecture
+- Service management with systemd
+- Automated Java application server deployment
+- EC2 configuration and networking basics
+
+---
+
+## 👨‍💻 Author
+
+Deployed and automated by **Wasim Akram**
+
+---
+
+## 📌 Future Improvements
+
+- Add Nginx reverse proxy
+- Add CI/CD pipeline
+- Add SSL (Let's Encrypt)
+- Multi-instance deployment with load balancer
+- Dockerized WildFly version
+
+
+## 🙏 Original Source
+
+This project was inspired by the official Ansible example:
+
+https://github.com/ansible/ansible-examples/tree/master/jboss-standalone
+
+The original example targets JBoss AS on RHEL/CentOS systems.
+
+This repository has been significantly modified to:
+
+- Use WildFly instead of JBoss AS
+- Support Ubuntu EC2 instances
+- Implement systemd-based service management
+- Improve project structure and automation flow
+- Adapt configuration for modern environments
+
+All modifications were implemented as part of DevOps practice and learning.
+---
+
+🔥 This project serves as a strong DevOps practice lab for automating Java application server deployment on AWS.

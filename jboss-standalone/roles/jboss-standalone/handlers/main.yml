@@ -1,0 +1,7 @@
+---
+- name: restart jboss
+  systemd:
+    name: jboss
+    state: restarted
+    daemon_reload: yes
+  become: yes

@@ -49,7 +49,7 @@ Example:
 
 ```
 [web]
-54.123.45.67 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/mykey.pem
+34.xxx.xx.xx ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/mykey.pem
 ```
 
 ---
